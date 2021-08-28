@@ -96,10 +96,6 @@ colored_echo "Installing or upgrading atcom if it is required..."
 pip3 install -U atcom
 if [[ $? -ne 0 ]]; then colored_echo "Process failed" ${RED}; exit 1; fi
 
-source ~/.profile
-if [[ $? -ne 0 ]]; then colored_echo "Process failed" ${RED}; exit 1; fi
-
-
 colored_echo "Copying setup files..."
 
 cp  $SOURCE_PATH/chat-connect chat-connect
