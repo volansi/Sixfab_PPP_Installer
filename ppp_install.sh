@@ -66,8 +66,8 @@ colored_echo "4: Cellular IoT HAT"
 colored_echo "5: Tracker HAT"
 colored_echo "6: 3G/4G Base HAT"
 
+shield_hat=2
 
-read shield_hat
 case $shield_hat in
     1)    colored_echo "You chose GSM/GPRS Shield" ${GREEN};;
     2)    colored_echo "You chose Base Shield" ${GREEN};;
@@ -78,20 +78,16 @@ case $shield_hat in
     *)    colored_echo "Wrong Selection, exiting" ${RED}; exit 1;
 esac
 
-colored_echo "Checking requirements..."
-
-colored_echo "Updating headers..."
-sudo apt-get update
 
 colored_echo "Installing python3 if it is required..."
 if ! [ -x "$(command -v python3)" ]; then
-  sudo apt-get install python3 -y
+  apk add python3
   if [[ $? -ne 0 ]]; then colored_echo "Process failed" ${RED}; exit 1; fi
 fi
 
 colored_echo "Installing pip3 if it is required..."
 if ! [ -x "$(command -v pip3)" ]; then
-  sudo apt-get install python3-pip -y
+  apk add py3-pip
   if [[ $? -ne 0 ]]; then colored_echo "Process failed" ${RED}; exit 1; fi
 fi
 
@@ -111,26 +107,18 @@ cp  $SOURCE_PATH/chat-disconnect chat-disconnect
 cp  $SOURCE_PATH/provider provider
 
 colored_echo "ppp and wiringpi (gpio tool) installing..."
-apt-get install ppp wiringpi -y
+apk add ppp
 if [[ $? -ne 0 ]]; then colored_echo "Process failed" ${RED}; exit 1; fi
 
-# test wiringpi and fix if there is any issue
-gpio readall | grep Oops > /dev/null
-if [[ $? -ne 1 ]]; then 
-	colored_echo "Known wiringpi issue is detected! Wiringpi is updating..."
-	wget https://project-downloads.drogon.net/wiringpi-latest.deb
-	sudo dpkg -i wiringpi-latest.deb
-fi
-
 colored_echo "What is your carrier APN?"
-read carrierapn 
+carrierapn=super
 
 colored_echo "Your Input is : $carrierapn" ${GREEN} 
 
 while [ 1 ]
 do
 	colored_echo "Does your carrier need username and password? [Y/n]"
-	read usernpass
+	usernpass=n
 	
 	colored_echo "You chose $usernpass" ${GREEN} 
 
@@ -162,7 +150,7 @@ do
 done
 
 colored_echo "What is your device communication PORT? (ttyS0/ttyUSB3/etc.)"
-read devicename 
+devicename=ttyAMA0
 
 colored_echo "Your input is: $devicename" ${GREEN} 
 
@@ -205,20 +193,14 @@ sed -i "s/#APN/$carrierapn/" provider
 sed -i "s/#DEVICE/$devicename/" provider
 mv provider /etc/ppp/peers/provider
 
-if ! (grep -q 'sudo route' /etc/ppp/ip-up ); then	
-    echo "sudo route add default ppp0" >> /etc/ppp/ip-up	
-fi
-
-if [[ $shield_hat -eq 2 ]] || [[ $shield_hat -eq 6 ]]; then
-	if ! (grep -q 'max_usb_current' /boot/config.txt ); then
-		echo "max_usb_current=1" >> /boot/config.txt
-	fi
+if ! (grep -q 'route' /etc/ppp/ip-up ); then	
+    echo "route add default ppp0" >> /etc/ppp/ip-up	
 fi
 
 while [ 1 ]
 do
 	colored_echo "Do you want to activate auto connect/reconnect service at R.Pi boot up? [Y/n]"
-	read auto_reconnect
+	auto_reconnect=n
 
 	colored_echo "You chose $auto_reconnect" ${GREEN} 
 
@@ -298,8 +280,3 @@ do
 		*)   colored_echo "Wrong Selection, Select among Y or n" ${RED};;
 	esac
 done
-
-read -p "Press ENTER key to reboot" ENTER
-
-colored_echo "Rebooting..." ${GREEN}
-reboot
