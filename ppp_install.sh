@@ -45,7 +45,7 @@ function colored_echo
 if [[ -e $SIXFAB_PATH ]]; then
     colored_echo "Sixfab path already exist!" ${SET}
 else
-    sudo mkdir $SIXFAB_PATH
+    mkdir $SIXFAB_PATH
     colored_echo "Sixfab path is created." ${SET}
 fi
 
@@ -53,7 +53,7 @@ fi
 if [[ -e $PPP_PATH ]]; then
     colored_echo "PPP path already exist!" ${SET}
 else
-    sudo mkdir $PPP_PATH
+    mkdir $PPP_PATH
     colored_echo "PPP path is created." ${SET}
 fi
 
