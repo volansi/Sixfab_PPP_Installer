@@ -26,6 +26,7 @@ local
 lock
 modem
 dump
+updetach
 # Hardware flow control
 nocrtscts
 remotename 3gppp
